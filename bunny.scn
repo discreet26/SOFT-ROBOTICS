@@ -1,0 +1,52 @@
+<Node name="root" dt="0.01" gravity="0 -9.8 0">
+    <VisualStyle displayFlags="showBehaviorModels showVisualModels" />
+
+    <RequiredPlugin name="Sofa.Component.Constraint.Projective"/> <!-- Needed to use components [FixedProjectiveConstraint] -->
+    <RequiredPlugin name="Sofa.Component.Engine.Generate"/> <!-- Needed to use components [NormEngine] -->
+    <RequiredPlugin name="Sofa.Component.Engine.Select"/> <!-- Needed to use components [ValuesFromIndices] -->
+    <RequiredPlugin name="Sofa.Component.Engine.Transform"/> <!-- Needed to use components [DifferenceEngine] -->
+    <RequiredPlugin name="Sofa.Component.LinearSolver.Iterative"/> <!-- Needed to use components [CGLinearSolver] -->
+    <RequiredPlugin name="Sofa.Component.Mapping.Linear"/> <!-- Needed to use components [BarycentricMapping] -->
+
+    <RequiredPlugin name="Sofa.Component.Mass"/> <!-- Needed to use components [MeshMatrixMass] -->
+    <RequiredPlugin name="Sofa.Component.ODESolver.Backward"/> <!-- Needed to use components [EulerImplicitSolver] -->
+    <RequiredPlugin name="Sofa.Component.SolidMechanics.FEM.Elastic"/> <!-- Needed to use components [TetrahedronFEMForceField] -->
+    <RequiredPlugin name="Sofa.Component.StateContainer"/> <!-- Needed to use components [MechanicalObject] -->
+    <RequiredPlugin name="Sofa.Component.Topology.Container.Dynamic"/> <!-- Needed to use components [TetrahedronSetGeometryAlgorithms] -->
+    <RequiredPlugin name="Sofa.Component.Topology.Container.Grid"/> <!-- Needed to use components [RegularGridTopology] -->
+
+    <RequiredPlugin name="Sofa.GL.Component.Rendering2D"/> <!-- Needed to use components [OglLabel] -->
+    <RequiredPlugin name="Sofa.GL.Component.Rendering3D"/> <!-- Needed to use components [OglModel] -->
+
+    <DefaultAnimationLoop/>
+    <DefaultVisualManagerLoop/>
+
+    
+
+    <Node name="deformableSections">
+        <EulerImplicitSolver name="cg_odesolver" />
+        <CGLinearSolver iterations="20" tolerance="1e-07" threshold="1e-07"/>
+        
+        <MechanicalObject template="Vec3" name="FEM_DOFs"/>
+        <RegularGridTopology nx="4" ny="4" nz="20" xmin="-1.5" xmax="1.5" ymin="-1.5" ymax="1.5" zmin="0" zmax="19" />
+        <TetrahedronSetGeometryAlgorithms/>
+        <MeshMatrixMass massDensity="1" />
+        <FixedProjectiveConstraint indices="0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 " />
+        <TetrahedronFEMForceField name="FEM" youngModulus="10000" poissonRatio="0.45" method="large" />
+
+        <Node name="solution">
+            <ValuesFromIndices name="PFI_a" template="Vec3" in="@FEM_DOFs.position" indices="160 160 172 175 160 163" />
+            <ValuesFromIndices name="PFI_b" template="Vec3" in="@FEM_DOFs.position" indices="163 172 175 163 175 172" />
+            <DifferenceEngine name="diff" input="@PFI_b.out" substractor="@PFI_a.out"/>
+            <NormEngine input="@diff.output" name="norm"/>
+
+            
+        </Node>
+
+        <Node name="Visual">
+            <RegularGridTopology name="grid" nx="2" ny="2" nz="20" xmin="-1.5" xmax="1.5" ymin="-1.5" ymax="1.5" zmin="0" zmax="19" computeTriangleList="true" />
+            <OglModel name="visu" lineWidth="1" material="Default Diffuse 0 1 1 1 1 Ambient 1 0 1 0 1 Specular 1 1 0 0 2 Emissive 2 0 2 0 1 Shininess 0 90"/>
+            <BarycentricMapping input="@../FEM_DOFs" output="@visu"/>
+        </Node>
+    </Node>
+</Node>

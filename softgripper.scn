@@ -1,0 +1,116 @@
+<?xml version="1.0" ?>
+<Node name="root">
+    <!-- Basic settings -->
+    <VisualStyle displayFlags="showBehaviorModels showVisualModels showWireframe" />
+    <RequiredPlugin name="Sofa.Component.AnimationLoop" />
+    <RequiredPlugin name="Sofa.Component.ODESolver" />
+    <RequiredPlugin name="Sofa.Component.LinearSolver" />
+    <RequiredPlugin name="Sofa.Component.Topology.Container.Grid" />
+    <RequiredPlugin name="Sofa.Component.Mass" />
+    <RequiredPlugin name="Sofa.Component.Constraint.Projective" />
+    <RequiredPlugin name="Sofa.Component.ForceField.FEM" />
+    <RequiredPlugin name="Sofa.Component.Mapping" />
+    <RequiredPlugin name="Sofa.Component.IO.Mesh" />
+    <RequiredPlugin name="Sofa.Component.Visual" />
+    <RequiredPlugin name="Sofa.Component.Collision.Detection.Algorithm" />
+    <RequiredPlugin name="Sofa.Component.Collision.Response.Contact" />
+    <RequiredPlugin name="Sofa.Component.Collision.Model" />
+    <RequiredPlugin name="Sofa.Component.Cable" />
+    <RequiredPlugin name="Sofa.Component.InteractionForceField" />
+
+    <!-- Time integration and solvers -->
+    <DefaultAnimationLoop />
+    <EulerImplicitSolver name="odesolver" />
+    <CGLinearSolver name="linearSolver" />
+
+    <!-- Soft fingers -->
+    <Node name="Finger1">
+        <EulerImplicitSolver name="odesolver" />
+        <CGLinearSolver name="linearSolver" />
+        
+        <RegularGridTopology name="grid" nx="4" ny="4" nz="20" xmin="0" xmax="1" ymin="0" ymax="1" zmin="0" zmax="10" />
+        <MechanicalObject template="Vec3d" name="dofs" />
+        <UniformMass totalMass="0.1" />
+        <HexahedronFEMForceField youngModulus="5000" poissonRatio="0.3" />
+        <FixedConstraint indices="0 1 2 3 4 5 6 7" />
+        <ConstantForceField force="0 -9.81 0" />
+
+        <!-- Cable actuation -->
+        <CableConstraint name="cable" indices="60 61 62 63 64 65 66 67" pullPoint="0 0 10" value="0.0" />
+        <BarycentricMapping input="@../dofs" output="@cable" />
+
+        <!-- Visualization -->
+        <OglModel name="visual" fileMesh="mesh/finger.obj" />
+        <BarycentricMapping input="@dofs" output="@visual" />
+    </Node>
+
+    <Node name="Finger2">
+        <EulerImplicitSolver name="odesolver" />
+        <CGLinearSolver name="linearSolver" />
+        
+        <RegularGridTopology name="grid" nx="4" ny="4" nz="20" xmin="0" xmax="1" ymin="0" ymax="1" zmin="0" zmax="10" />
+        <MechanicalObject template="Vec3d" name="dofs" />
+        <UniformMass totalMass="0.1" />
+        <HexahedronFEMForceField youngModulus="5000" poissonRatio="0.3" />
+        <FixedConstraint indices="0 1 2 3 4 5 6 7" />
+        <ConstantForceField force="0 -9.81 0" />
+
+        <!-- Cable actuation -->
+        <CableConstraint name="cable" indices="60 61 62 63 64 65 66 67" pullPoint="0 0 10" value="0.0" />
+        <BarycentricMapping input="@../dofs" output="@cable" />
+
+        <!-- Visualization -->
+        <OglModel name="visual" fileMesh="mesh/finger.obj" />
+        <BarycentricMapping input="@dofs" output="@visual" />
+    </Node>
+
+    <Node name="Finger3">
+        <EulerImplicitSolver name="odesolver" />
+        <CGLinearSolver name="linearSolver" />
+        
+        <RegularGridTopology name="grid" nx="4" ny="4" nz="20" xmin="0" xmax="1" ymin="0" ymax="1" zmin="0" zmax="10" />
+        <MechanicalObject template="Vec3d" name="dofs" />
+        <UniformMass totalMass="0.1" />
+        <HexahedronFEMForceField youngModulus="5000" poissonRatio="0.3" />
+        <FixedConstraint indices="0 1 2 3 4 5 6 7" />
+        <ConstantForceField force="0 -9.81 0" />
+
+        <!-- Cable actuation -->
+        <CableConstraint name="cable" indices="60 61 62 63 64 65 66 67" pullPoint="0 0 10" value="0.0" />
+        <BarycentricMapping input="@../dofs" output="@cable" />
+
+        <!-- Visualization -->
+        <OglModel name="visual" fileMesh="mesh/finger.obj" />
+        <BarycentricMapping input="@dofs" output="@visual" />
+    </Node>
+
+    <!-- Object to be picked -->
+    <Node name="Object">
+        <EulerImplicitSolver name="odesolver" />
+        <CGLinearSolver name="linearSolver" />
+        
+        <MeshGmshLoader name="loader" filename="mesh/object.msh" />
+        <MechanicalObject src="@loader" name="dofs" />
+        <UniformMass totalMass="0.5" />
+        <TetrahedronFEMForceField youngModulus="2000" poissonRatio="0.45" />
+
+        <!-- Collision model -->
+        <Node name="collision">
+            <MechanicalObject src="@../dofs" />
+            <TriangleSetTopologyContainer src="@../loader" />
+            <LineSetTopologyContainer src="@../loader" />
+            <PointSetTopologyContainer src="@../loader" />
+            <TriangleCollisionModel />
+            <LineCollisionModel />
+            <PointCollisionModel />
+            <BarycentricMapping input="@../dofs" output="@self" />
+        </Node>
+
+        <!-- Visualization -->
+        <OglModel name="visual" src="@loader" />
+        <BarycentricMapping input="@dofs" output="@visual" />
+    </Node>
+
+    <!-- Controller for cable actuation -->
+    <PythonScriptController name="cableController" filename="controller.py" />
+</Node>

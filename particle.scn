@@ -1,0 +1,33 @@
+<?xml version="1.0" ?>
+
+<!-- Rigid object in a scene -->
+
+
+    <Node name="Liver" >
+    <RequiredPlugin name="Sofa.Component.StateContainer" />
+    <RequiredPlugin name="Sofa.Component.Mass"/>
+    <RequiredPlugin name="Sofa.Component.MechanicalLoad"/>
+    <RequiredPlugin name="Sofa.Component.LinearSolver.Iterative"/>
+    <RequiredPlugin name="Sofa.Component.ODESolver.Backward"/>
+    <!--RequiredPlugin name="Sofa.Component.SceneUtility"/ -->
+    <RequiredPlugin name="Sofa.Component.IO.Mesh"/>
+    <RequiredPlugin name="Sofa.Component.Topology.Container.Dynamic"/>
+
+    <DefaultAnimationLoop computeBoundingBox="false" />
+
+    <MeshGmshLoader name="meshLoaderCoarse" filename="mesh/liver.msh" />
+
+    <Node name="Liver">
+    
+    
+        <EulerImplicitSolver />
+        <CGLinearSolver iterations="200" tolerance="1e-09" threshold="1e-091" />
+        <PointSetTopologyContainer name="topo" src="@../meshLoaderCoarse"/>
+        
+
+        <MechanicalObject template="Rigid3d" name="my particle" position="@topo" showObject="1"/>
+        <UniformMass totalMass="1" />
+        <ConstantForceField totalForce="1 0 0 0 0 0 " />
+    </Node>
+
+</Node>

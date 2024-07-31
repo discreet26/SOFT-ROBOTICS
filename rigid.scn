@@ -1,0 +1,38 @@
+
+<Node name="root">
+    <VisualStyle displayFlags="showBehaviorModels showVisualModels" />
+
+    <!-- Time integration scheme -->
+    <EulerImplicitSolver name="odesolver" />
+
+    <!-- Linear solver -->
+    <SparseLDLSolver name="sparse_ldl_solver" />
+
+    <!-- Define the topology of the beam with 20 segments in z, and 4 segments in x and y -->
+    <RegularGridTopology name="grid" nx="1" ny="1" nz="20" xmin="-1.5" xmax="1.5" ymin="-1.5" ymax="1.5" zmin="0" zmax="19" />
+    <FixedProjectiveConstraint indices="0" />
+    <!-- Define the mechanical object for the rigid beam -->
+    <MechanicalObject template="Rigid3" name="DOFs" showObject="true" showObjectScale="1" position="@grid.position"/>
+
+    <!-- Define the mass distribution for the beam -->
+    <UniformMass totalMass="1.0" />
+
+    <!-- Apply gravity force -->
+    <ConstantForceField force="0 -9.81 0" />
+
+    <!-- Define the rigid beam's mapping and constraints -->
+    <RigidMapping name="rigidMapping" globalToLocalCoords="true" rigidIndexPerPoint="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 10 10 10 10 10 10 10 10 10 10 10 10 10 10 10 10 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 12 12 12 12 12 12 12 12 12 12 12 12 12 12 12 12 13 13 13 13 13 13 13 13 13 13 13 13 13 13 13 13 14 14 14 14 14 14 14 14 14 14 14 14 14 14 14 14 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 16 16 16 16 16 16 16 16 16 16 16 16 16 16 16 16 17 17 17 17 17 17 17 17 17 17 17 17 17 17 17 17 18 18 18 18 18 18 18 18 18 18 18 18 18 18 18 18 19 19 19 19 19 19 19 19 19 19 19 19 19 19 19 19" />
+
+    <!-- Constraints for fixed end -->
+    <FixedConstraint indices="0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39" />
+
+    <!-- Visualization -->
+    <Node name="Visual">
+        <OglModel name="VisualModel" fileMesh="mesh/beam.obj" />
+        <BarycentricMapping input="@../DOFs" output="@VisualModel" />
+    </Node>
+
+    <!-- Topology algorithms and mass -->
+    <HexahedronSetGeometryAlgorithms />
+    <MeshMatrixMass massDensity="1" />
+</Node>
